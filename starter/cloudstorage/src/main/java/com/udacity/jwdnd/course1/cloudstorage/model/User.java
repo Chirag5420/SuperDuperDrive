@@ -2,7 +2,7 @@ package com.udacity.jwdnd.course1.cloudstorage.model;
 
 public class User {
     //instance variables
-    private int userid;
+    private Integer userid;
     private String username;
     private String salt;
     private String password;
@@ -14,7 +14,7 @@ public class User {
     }
 
     //parameterized constructor
-    public User(int userid, String username, String salt, String password, String firstname, String lastname) {
+    public User(Integer userid, String username, String salt, String password, String firstname, String lastname) {
         this.userid = userid;
         this.username = username;
         this.salt = salt;
@@ -27,7 +27,7 @@ public class User {
         return userid;
     }
 
-    public void setUserID(int userid) {
+    public void setUserID(Integer userid) {
         this.userid = userid;
     }
 
