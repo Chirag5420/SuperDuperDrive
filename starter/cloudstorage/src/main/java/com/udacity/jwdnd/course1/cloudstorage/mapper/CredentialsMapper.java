@@ -20,6 +20,6 @@ public interface CredentialsMapper {
             "WHERE credentialid = #{credentialid};")
     int updateCredentials(Credentials credentials);
 
-    @Delete("DELETE FROM CREDENTIALS WHERE credentialid = #{credentialid}")
-    int deleteCredentials(int credentialid);
+    @Delete("DELETE FROM CREDENTIALS WHERE credentialid = #{credentialid} AND userid = #{userid}")
+    int deleteCredentials(int credentialid, int userid);
 }

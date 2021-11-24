@@ -2,28 +2,28 @@ package com.udacity.jwdnd.course1.cloudstorage.model;
 
 public class Notes {
     //instance variables
-    private int noteid;
+    private Integer noteid;
     private String notetitle;
     private String notedescription;
-    private int userid;
+    private Integer userid;
 
     //default constructor
     public Notes() {
     }
 
     //parameterized constructor
-    public Notes(int noteid, String notetitle, String notedescription, int userid) {
+    public Notes(Integer noteid, String notetitle, String notedescription, Integer userid) {
         this.noteid = noteid;
         this.notetitle = notetitle;
         this.notedescription = notedescription;
         this.userid = userid;
     }
 
-    public int getNoteid() {
+    public Integer getNoteid() {
         return noteid;
     }
 
-    public void setNoteid(int noteid) {
+    public void setNoteid(Integer noteid) {
         this.noteid = noteid;
     }
 

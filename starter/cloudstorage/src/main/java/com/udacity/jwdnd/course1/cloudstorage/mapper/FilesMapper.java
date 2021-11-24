@@ -14,6 +14,9 @@ public interface FilesMapper {
     @Select("SELECT * FROM FILES WHERE userid = #{userid};")
     List <Files> selectFiles(int userid);
 
+    @Select("SELECT * FROM FILES WHERE userid = #{userid} AND fileId = #{fileId};")
+    Files selectFile(Integer userid, Integer fileId);
+
     @Update("UPDATE FILES" +
             "SET filename = #{filename}, contenttype = #{contenttype}, filedata = #{filedata}" +
             "WHERE fileId = #{fileId};")
@@ -21,4 +24,11 @@ public interface FilesMapper {
 
     @Delete("DELETE FROM FILES WHERE fileid = #{fileid} AND userid = #{userid};")
     int deleteFiles(int fileid, int userid);
+
+    @Select("SELECT CASE WHEN EXISTS (" +
+            "SELECT * FROM FILES WHERE fileName=#{fileName} AND userId=#{userId}" +
+            ") " +
+            "THEN TRUE " +
+            "ELSE FALSE END AS bool;")
+    boolean isExistingFile (String fileName, Integer userId);
 }

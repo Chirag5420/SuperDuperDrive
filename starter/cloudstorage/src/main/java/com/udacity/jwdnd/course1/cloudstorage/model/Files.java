@@ -5,7 +5,7 @@ public class Files {
     private int fileId;
     private String filename;
     private String contenttype;
-    private String filesize;
+    private Long filesize;
     private int userid;
     private byte [] filedata;
 
@@ -14,7 +14,7 @@ public class Files {
     }
 
     //parameterized constructor
-    public Files(int fileId, String filename, String contenttype, String filesize, int userid, byte[] filedata) {
+    public Files(int fileId, String filename, String contenttype, Long filesize, int userid, byte[] filedata) {
         this.fileId = fileId;
         this.filename = filename;
         this.contenttype = contenttype;
@@ -47,11 +47,11 @@ public class Files {
         this.contenttype = contenttype;
     }
 
-    public String getFilesize() {
+    public long getFilesize() {
         return filesize;
     }
 
-    public void setFilesize(String filesize) {
+    public void setFilesize(long filesize) {
         this.filesize = filesize;
     }
 
