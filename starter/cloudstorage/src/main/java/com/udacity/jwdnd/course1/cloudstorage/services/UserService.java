@@ -33,4 +33,10 @@ public class UserService {
     public User getUser(String username){
         return userMapper.selectUser(username);
     }
+
+    public Integer getUserId(String username){
+        User user = userMapper.selectUser(username);
+        Integer userId = user.getUserID();
+        return userId;
+    }
 }

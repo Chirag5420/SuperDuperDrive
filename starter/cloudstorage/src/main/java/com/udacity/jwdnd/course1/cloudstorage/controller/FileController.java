@@ -1,8 +1,8 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
-import com.udacity.jwdnd.course1.cloudstorage.model.Files;
+import com.udacity.jwdnd.course1.cloudstorage.model.File;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
-import com.udacity.jwdnd.course1.cloudstorage.services.FilesService;
+import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -18,44 +18,39 @@ import java.io.IOException;
 @Controller
 @RequestMapping("/file")
 public class FileController {
-    private final FilesService filesService;
-    private final UserService userService;
 
-    public FileController(FilesService filesService, UserService userService) {
-        this.filesService = filesService;
+    private FileService fileService;
+    private UserService userService;
+
+    public FileController(FileService fileService, UserService userService) {
+        this.fileService = fileService;
         this.userService = userService;
     }
 
-    @PostMapping
-    public String uploadFile (Model model, @RequestParam("fileUpload")MultipartFile multipartFile, Authentication authentication){
-        String username = authentication.getName();
-        User user = userService.getUser(username);
-        Integer userID = user.getUserID();
-
-        String filename = multipartFile.getOriginalFilename();
-
+    @PostMapping()
+    public String uploadFile (Model model, @RequestParam("fileUpload")MultipartFile file, Authentication authentication) {
+        Integer userId = userService.getUserId(authentication.getName());
+        String fileName = file.getOriginalFilename();
         try{
-            if(!filename.isEmpty()){
-                if(!filesService.isDuplicateFile(multipartFile, userID)){
-                    if(multipartFile.getSize() < 10485760){
-                        filesService.uploadFiles(multipartFile, userID);
+            if(!fileName.isEmpty()) {
+                if (!fileService.isDuplicate(file, userId)) {
+                    if (file.getSize() < 10485760) {
+                        fileService.uploadFile(file, userId);
                         model.addAttribute("isSuccessful", true);
-                        model.addAttribute("successMessage", filename + " has been successfully uploaded!");
-                    }else {
+                        model.addAttribute("successMessage", fileName + " has been successfully uploaded!");
+                    } else {
                         model.addAttribute("hasAnError", true);
-                        model.addAttribute("errorMessage", "File size must be smaller than 10485760, current file size= (" + multipartFile.getSize() + ")");
+                        model.addAttribute("errorMessage", "File size must be smaller than 10485760, current file size= (" + file.getSize() + ")");
                     }
-                }
-                else {
+                } else {
                     model.addAttribute("hasAnError", true);
-                    model.addAttribute("errorMessage", "File with " + filename + " exists!");
+                    model.addAttribute("errorMessage", "File with " + fileName + " existed!");
                 }
-            }
-            else {
+            } else {
                 model.addAttribute("hasAnError", true);
                 model.addAttribute("errorMessage", "Uploading empty file is not possible");
             }
-        } catch (IOException e) {
+        } catch (IOException e){
             model.addAttribute("hasAnError", true);
             model.addAttribute("errorMessage", "Error in uploading file!");
             e.printStackTrace();
@@ -64,36 +59,29 @@ public class FileController {
     }
 
     @GetMapping("download/{fileId}")
-    public ResponseEntity downloadFile(@PathVariable Integer fileId, Authentication authentication){
-        String username = authentication.getName();
-        User user = userService.getUser(username);
-        Integer userID = user.getUserID();
-
-        Files files = filesService.getFile(fileId, userID);
+    public ResponseEntity downloadFile (@PathVariable Integer fileId, Authentication authentication){
+        Integer userId = userService.getUserId(authentication.getName());
+        File file = fileService.getFile(fileId, userId);
 
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(files.getContenttype()))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + files.getFilename() + "\"")
-                .body(files.getFiledata());
+                .contentType(MediaType.parseMediaType(file.getContentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFileName() + "\"")
+                .body(file.getFileData());
     }
 
     @GetMapping("delete/{fileId}")
-    public String deleteFile(Model model, @PathVariable Integer fileId, Authentication authentication){
-        String username = authentication.getName();
-        User user = userService.getUser(username);
-        Integer userID = user.getUserID();
+    public String deleteFile (Model model, @PathVariable Integer fileId, Authentication authentication){
+        Integer userId = userService.getUserId(authentication.getName());
+        Integer fileIsDeleted = fileService.deleteFile(fileId, userId);
 
-        Integer fileIsDeleted = filesService.deleteFiles(fileId, userID);
-
-        if(fileIsDeleted != null){
+        if (fileIsDeleted != null){
             model.addAttribute("isSuccessful", true);
-            model.addAttribute("successMessage", "file has been successfully deleted");
-        }
-        else{
+            model.addAttribute("successMessage", "file has been successfully deleted!");
+        } else {
             model.addAttribute("hasAnError", true);
-            model.addAttribute("errorMessage", "file deletion failed");
+            model.addAttribute("errorMessage", "file deletion failed!");
         }
-
         return "result";
     }
+
 }

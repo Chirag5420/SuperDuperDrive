@@ -1,8 +1,8 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
-import com.udacity.jwdnd.course1.cloudstorage.model.Credentials;
+import com.udacity.jwdnd.course1.cloudstorage.model.Credential;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
-import com.udacity.jwdnd.course1.cloudstorage.services.CredentialsService;
+import com.udacity.jwdnd.course1.cloudstorage.services.CredentialService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -15,23 +15,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/credential")
 public class CredentialController {
-    private final CredentialsService credentialsService;
-    private final UserService userService;
 
-    public CredentialController(CredentialsService credentialsService, UserService userService) {
-        this.credentialsService = credentialsService;
+    private CredentialService credentialService;
+    private UserService userService;
+
+    public CredentialController(CredentialService credentialService, UserService userService) {
+        this.credentialService = credentialService;
         this.userService = userService;
     }
 
     @PostMapping
-    public String insertOrUpdate(Model model, Credentials credentials, Authentication authentication){
-        String username = authentication.getName();
-        User user = userService.getUser(username);
-        Integer userId = user.getUserID();
-
-        credentials.setUserid(userId);
+    public String insertOrUpdateCredential (Model model, Credential credential, Authentication authentication){
+        Integer userId = userService.getUserId(authentication.getName());
+        credential.setUserId(userId);
         try{
-            credentialsService.insertOrUpdateCredential(credentials);
+            credentialService.insertOrUpdateCredential(credential);
             model.addAttribute("isSuccessful", true);
             model.addAttribute("successMessage",  "credential has been successfully inserted!");
         } catch (Exception e){
@@ -42,24 +40,18 @@ public class CredentialController {
         return "result";
     }
 
-    @GetMapping("delete/{credentialId}")
-    public String deleteCredential(Model model, Authentication authentication, @PathVariable Integer credentialId){
-        String username = authentication.getName();
-        User user = userService.getUser(username);
-        Integer userId = user.getUserID();
+    @GetMapping("/delete/{credentialId}")
+    public String deleteNote (Model model, @PathVariable Integer credentialId, Authentication authentication){
+        Integer userId = userService.getUserId(authentication.getName());
+        Integer credentialIsDeleted = credentialService.deleteCredential(credentialId, userId);
 
-        Integer credentialIsDeleted = credentialsService.deleteCredential(credentialId, userId);
-
-        if(credentialIsDeleted != null){
-            model.addAttribute("isSuccess", true);
+        if (credentialIsDeleted != null){
+            model.addAttribute("isSuccessful", true);
             model.addAttribute("successMessage", "credential has been successfully deleted!");
-        }
-        else{
+        } else {
             model.addAttribute("hasAnError", true);
             model.addAttribute("errorMessage", "credential deletion failed!");
         }
-
         return "result";
     }
-
 }

@@ -1,8 +1,8 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
-import com.udacity.jwdnd.course1.cloudstorage.model.Credentials;
-import com.udacity.jwdnd.course1.cloudstorage.model.Files;
-import com.udacity.jwdnd.course1.cloudstorage.model.Notes;
+import com.udacity.jwdnd.course1.cloudstorage.model.Credential;
+import com.udacity.jwdnd.course1.cloudstorage.model.File;
+import com.udacity.jwdnd.course1.cloudstorage.model.Note;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.*;
 import org.springframework.security.core.Authentication;
@@ -14,30 +14,31 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/home")
 public class HomeController {
-    private FilesService filesService;
-    private NotesService notesService;
-    private CredentialsService credentialsService;
+    private FileService fileService;
+    private CredentialService credentialService;
+    private NoteService noteService;
     private UserService userService;
     private EncryptionService encryptionService;
 
-    public HomeController(FilesService filesService, NotesService notesService, CredentialsService credentialsService, UserService userService, EncryptionService encryptionService) {
-        this.filesService = filesService;
-        this.notesService = notesService;
-        this.credentialsService = credentialsService;
+    public HomeController(FileService fileService, CredentialService credentialService, NoteService noteService, UserService userService, EncryptionService encryptionService) {
+        this.fileService = fileService;
+        this.credentialService = credentialService;
+        this.noteService = noteService;
         this.userService = userService;
         this.encryptionService = encryptionService;
     }
 
-    @GetMapping()
-    public String homeView(Model model, Authentication authentication, Files files, Notes notes, Credentials credentials){
+    @GetMapping
+    public String homeView(Model model, Authentication authentication, Note note, Credential credential, File file){
         String username = authentication.getName();
-        User user = userService.getUser(username);
-        Integer userID = user.getUserID();
+        Integer userId = userService.getUserId(username);
 
-        model.addAttribute("fileList", this.filesService.getAllFiles(userID));
-        model.addAttribute("notesList", this.notesService.getAllNotes(userID));
-        model.addAttribute("credentialsList", this.credentialsService.getAllCredentials(userID));
+        model.addAttribute("fileList", this.fileService.getAllFiles(userId));
+        model.addAttribute("noteList", this.noteService.getAllNotes(userId));
+        model.addAttribute("credentialList", this.credentialService.getAllCredentials(userId));
         model.addAttribute("encryptionService", this.encryptionService);
         return "home";
     }
+
+
 }
